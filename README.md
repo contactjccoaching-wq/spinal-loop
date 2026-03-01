@@ -118,7 +118,7 @@ Phase switches automatically after N turns (configurable) or when the user says 
 ## Quick Start
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/spinal-loop.git
+git clone https://github.com/contactjccoaching-wq/spinal-loop.git
 cd spinal-loop
 pip install -r requirements.txt
 
