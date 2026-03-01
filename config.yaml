@@ -1,0 +1,54 @@
+# ============================================================
+# Spinal Loop Orchestrator — Configuration
+# ============================================================
+# Système d'orchestration multi-agents inspiré des mécanismes
+# neuromusculaires biologiques.
+#
+# Pour modifier le comportement, ajustez les seuils ci-dessous.
+# Valeurs entre 0.0 et 1.0 sauf indication contraire.
+# ============================================================
+
+# --- Modèles par niveau (Principe de Henneman) ---
+models:
+  level_1: "claude-haiku-4-5-20251001"    # Réflexe rapide, faible coût
+  level_2: "claude-sonnet-4-6"            # Intermédiaire
+  level_3: "claude-opus-4-6"              # Délibératif profond, coût élevé
+
+# --- Seuils de recrutement (Henneman) ---
+henneman:
+  confidence_threshold: 0.7    # En dessous → escalade
+  complexity_threshold: 0.7    # Au dessus → escalade
+
+# --- Moniteur de surcharge (GTO) ---
+gto:
+  max_repetitions: 3           # Même concept répété N fois → surcharge
+  length_multiplier: 2.0       # Réponse >2x la longueur attendue → surcharge
+  expected_length: 500         # Longueur de référence en caractères
+  enabled: true
+
+# --- Switching exclusif (Inhibition réciproque) ---
+mode_switch:
+  refractory_period: 3         # Tours minimum avant re-switch
+  reflex_max_tokens: 150       # Tokens max en mode REFLEXE
+
+# --- Modulateur (Reflex Reversal) ---
+modulator:
+  phase_switch_turn: 5         # Tour où EXPLORATION → CONSOLIDATION
+  consolidation_keywords:
+    - "synthétise"
+    - "synthèse"
+    - "conclure"
+    - "conclusion"
+    - "résume"
+    - "résumé"
+    - "summarize"
+    - "conclude"
+    - "wrap up"
+
+# --- Logging ---
+logging:
+  level: "INFO"
+  file: "spinal_loop.log"
+
+# --- Langue de réponse ---
+language: "fr"    # fr, en, es, de — langue par défaut des réponses
