@@ -33,6 +33,7 @@ EVENT_STYLES = {
     "CLASSIFY":  (_C.BLUE,    "[CLASSIFY]"),
     "MODULATE":  (_C.MAGENTA, "[MODULATE]"),
     "REFLEX":    (_C.GREEN,   "[REFLEX]"),
+    "SAFETY_NET": (_C.YELLOW, "[SAFETY_NET]"),
     "API_CALL":  (_C.DIM,     "[API]"),
 }
 

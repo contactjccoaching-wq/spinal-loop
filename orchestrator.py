@@ -80,6 +80,19 @@ class SpinalLoopOrchestrator:
         # 2. Traitement selon le mode
         if mode == "REFLEX":
             response_text = self._process_reflex(query)
+            # Filet de sécurité : si la réponse REFLEX semble insuffisante,
+            # basculer en DELIBERATIVE. Coût = 1 appel Haiku gaspillé,
+            # mais évite de servir une mauvaise réponse.
+            if self._reflex_insufficient(response_text, query):
+                self.logger.bio_event(
+                    "SAFETY_NET", model="haiku",
+                    reason="reflex response insufficient, upgrading to DELIBERATIVE"
+                )
+                self.context.add_event("SAFETY_NET", {
+                    "query": query[:100],
+                    "reflex_response_length": len(response_text)
+                })
+                response_text = self._process_deliberative(query)
         else:
             response_text = self._process_deliberative(query)
 
@@ -87,6 +100,26 @@ class SpinalLoopOrchestrator:
         self.context.add_assistant_message(response_text)
 
         return response_text
+
+    def _reflex_insufficient(self, response: str, query: str) -> bool:
+        """Vérifie si une réponse REFLEX est trop faible pour la question posée.
+
+        Purement basé sur des métriques objectives, pas de mots-clés :
+        - Réponse vide ou quasi-vide
+        - Ratio réponse/question trop faible sur les questions longues
+        """
+        response_len = len(response.strip())
+
+        # Réponse vide ou quasi-vide
+        if response_len < 10:
+            return True
+
+        # Question longue avec réponse disproportionnellement courte
+        query_len = len(query.strip())
+        if query_len > 80 and response_len < query_len * 0.3:
+            return True
+
+        return False
 
     def _process_reflex(self, query: str) -> str:
         """Traitement en mode REFLEX — rapide, direct, Haiku uniquement."""

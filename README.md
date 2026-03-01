@@ -4,12 +4,13 @@
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![No LangChain](https://img.shields.io/badge/LangChain-not%20needed-red.svg)](#)
 [![Anthropic API](https://img.shields.io/badge/Anthropic-API%20direct-blueviolet.svg)](https://docs.anthropic.com/)
 
-> What if multi-agent orchestration worked like the human neuromuscular system?
+> What if we borrowed design patterns from the neuromuscular system to route LLM calls?
 
-Spinal Loop maps four biological mechanisms from neuromuscular physiology onto a multi-agent LLM system. Instead of ad-hoc routing heuristics, it uses principles that evolved over millions of years to solve the exact same problems: **recruit minimum force needed**, **detect overload before failure**, **lock action modes to prevent oscillation**, and **reverse behavior based on context**.
+Spinal Loop uses four mechanisms from neuromuscular physiology as a design framework for multi-agent orchestration: ordered recruitment, overload detection, mutually exclusive modes, and context-dependent phase switching.
+
+It's an exploration — a way to think about multi-agent routing through a biological lens rather than ad-hoc heuristics. The code is functional but experimental.
 
 No frameworks. No abstractions. Direct Anthropic API calls only.
 
@@ -64,52 +65,52 @@ No frameworks. No abstractions. Direct Anthropic API calls only.
 
 ## The 4 Mechanisms
 
-| # | Mechanism | Biology | Implementation |
-|---|-----------|---------|----------------|
-| 1 | **Henneman's Principle** | Motor neurons recruit small units first, large units only when needed | Always start with Haiku. Each agent self-evaluates confidence (0-1) and complexity (0-1). Escalate to Sonnet, then Opus only if needed. Never skip levels. |
-| 2 | **GTO / Autogenic Inhibition** | Golgi tendon organ detects excessive muscle tension and inhibits contraction | A monitor agent analyzes every response for repetitions, excessive length, incoherence, and circular reasoning. If overloaded: inhibit, decompose into subtasks, redistribute. |
-| 3 | **Reciprocal Inhibition** | Flexor activation inhibits extensor (and vice versa) — mutually exclusive | Two modes: REFLEX (fast, Haiku-only, 150 tokens) and DELIBERATIVE (deep, full pipeline). Mutually exclusive with a 3-turn refractory period after switching. |
-| 4 | **Reflex Reversal** | Same reflex arc produces opposite responses depending on locomotion phase | Same modulator agent, two opposite system prompts. EXPLORATION phase: amplify divergent ideas. CONSOLIDATION phase: force convergence. Phase switches automatically or by keyword. |
+| # | Mechanism | Biological Analogy | What it does |
+|---|-----------|-------------------|--------------|
+| 1 | **Henneman's Principle** | Motor neurons recruit small units first, large only when needed | Start with Haiku. Each agent self-evaluates confidence and complexity. Escalate to Sonnet, then Opus only if the previous level says it's not enough. |
+| 2 | **GTO / Autogenic Inhibition** | Golgi tendon organ detects excessive tension and inhibits contraction | A monitor agent checks every response for repetitions, excessive length, and circular reasoning. If detected: inhibit, decompose into subtasks, redistribute. |
+| 3 | **Reciprocal Inhibition** | Flexor activation inhibits extensor — mutually exclusive | Two modes: REFLEX (fast, Haiku-only, 150 tokens) and DELIBERATIVE (full pipeline). A refractory period prevents rapid switching between modes. |
+| 4 | **Reflex Reversal** | Same reflex arc, opposite output depending on locomotion phase | Same modulator agent with two opposite prompts. EXPLORATION phase diverges, CONSOLIDATION phase converges. Switches by turn count or keyword. |
 
 ### 1. Henneman's Principle — Ordered Recruitment
 
-The most expensive model should be the last resort, not the default. Each agent includes a self-evaluation block:
+Each agent includes a self-evaluation block in its response:
 
 ```json
 {"confidence": 0.4, "complexity": 0.85, "escalate": true, "reason": "..."}
 ```
 
-If `confidence < 0.7` OR `complexity > 0.7` → escalate to the next level. The previous agent's response is passed as context, so the stronger model can build on it rather than starting from scratch.
+If `confidence < 0.7` OR `complexity > 0.7` → escalate to the next level. The previous agent's response is passed as context, so the stronger model builds on it rather than starting from scratch.
 
-In our simulation, a philosophy question escalated through all 3 levels:
-- **Haiku** (confidence: 0.4) → "Kant and Nietzsche diverge on morality..." → ESCALATE
+In simulation, a philosophy question escalated through all 3 levels:
+- **Haiku** (confidence: 0.4) → surface-level answer → ESCALATE
 - **Sonnet** (confidence: 0.55) → added historical context → ESCALATE
 - **Opus** (confidence: 0.93) → full analysis with contemporary critics → ACCEPTED
 
 ### 2. GTO — Overload Monitor
 
-LLMs have a known failure mode: when a question is too broad, they produce repetitive, circular, or hallucinated responses. Normally, the user has to detect this and rephrase.
-
-The GTO monitor detects this automatically:
+LLMs have a known failure mode: when a question is too broad, they produce repetitive or circular responses. The GTO monitor attempts to detect this automatically:
 - Repetitions (same concept >3 times)
 - Excessive length (>2x expected)
 - Internal contradictions
-- Circular reasoning / saturation
+- Circular reasoning
 
-When overload is detected, the monitor **inhibits** the response, **decomposes** the question into focused subtasks, and **redistributes** them to lower-level agents that handle each part cleanly.
+When overload is detected, the monitor inhibits the response, decomposes the question into focused subtasks, and redistributes them.
 
 ### 3. Reciprocal Inhibition — Mode Switching
 
-A classifier (Haiku, <100 tokens) determines if the query needs a quick reflex or deep deliberation. The two modes are mutually exclusive — like flexor/extensor muscles, only one can be active.
+A classifier (Haiku, <100 tokens) determines if the query needs a quick reflex or deep deliberation. The two modes are mutually exclusive.
 
-The **refractory period** (3 turns) prevents oscillation. Once in REFLEX mode, the system stays there for at least 3 turns, even if a complex question arrives. This mirrors biological neurons that can't refire immediately after an action potential.
+The **refractory period** (3 turns) prevents oscillation. Once in REFLEX mode, the system stays there for at least 3 turns. This is borrowed from neuroscience — biological neurons can't refire immediately after an action potential.
+
+**Known limitation:** the classifier is the single point of failure. If Haiku misclassifies a complex question as simple, the full pipeline is bypassed. A real deployment would need a more robust classification strategy.
 
 ### 4. Reflex Reversal — Phase Modulation
 
 The same modulator agent runs two opposite system prompts depending on the conversation phase:
 
-- **EXPLORATION** (early turns): "Amplify divergent ideas, add unexpected connections, challenge assumptions"
-- **CONSOLIDATION** (later turns or keyword trigger): "Inhibit divergence, force convergence, eliminate redundancies, structure actionable points"
+- **EXPLORATION** (early turns): "Amplify divergent ideas, add unexpected connections"
+- **CONSOLIDATION** (later turns or keyword trigger): "Force convergence, eliminate redundancies"
 
 Phase switches automatically after N turns (configurable) or when the user says "summarize", "conclude", "synthesize".
 
@@ -151,6 +152,8 @@ This runs 6 queries through the real orchestration code with mock API responses:
 | 5 | "Describe the complete history of computing" | **GTO** overload → decompose into 3 subtasks |
 | 6 | "Synthesize everything" | **Reflex Reversal** → CONSOLIDATION |
 
+There's also a multi-scenario simulation (`simulate_scenarios.py`) testing 3 realistic profiles — developer, general public user, and office employee — with 6 queries each (17/18 pass, 1 mock classifier limitation).
+
 ## Configuration
 
 All thresholds are in `config.yaml`:
@@ -166,47 +169,47 @@ All thresholds are in `config.yaml`:
 | `modulator.phase_switch_turn` | 5 | Turn number for automatic EXPLORATION → CONSOLIDATION |
 | `modulator.consolidation_keywords` | see file | Keywords that trigger CONSOLIDATION phase |
 
+## Simulation Cost Breakdown
+
+From the mock simulations (not real API benchmarks):
+
+| Scenario | API calls | Haiku % | Sonnet | Opus | Total tokens |
+|----------|----------|---------|--------|------|-------------|
+| Developer (6 turns) | 22 | 91% | 1 call | 1 call | 3,711 |
+| Employee (6 turns) | 24 | 83% | 2 calls | 2 calls | 4,388 |
+
+The design pushes most calls to the cheapest model. Expensive models are only recruited when the cheaper one explicitly says it can't handle the task. Whether this translates to meaningful cost savings in production depends on the actual query distribution — these numbers are from simulated scenarios, not real-world benchmarks.
+
 ## How It Compares
 
-| Feature | OpenRouter | Martian | FrugalGPT | LangChain | **Spinal Loop** |
-|---------|-----------|---------|-----------|-----------|-----------------|
-| Model selection | yes | yes | yes | yes | yes (Henneman) |
-| Progressive escalation | no | no | yes | possible | yes |
-| Agent self-evaluation | no | no | no (external) | no | **yes** |
-| Post-response overload detection | no | no | no | no | **yes (GTO)** |
-| Automatic decomposition | no | no | no | manual | **yes** |
-| Exclusive fast/slow modes | no | no | no | no | **yes** |
-| Refractory period | no | no | no | no | **yes** |
-| Explore/consolidate modulation | no | no | no | no | **yes** |
+Existing systems that address similar problems:
 
-## Cost Efficiency
+| System | Approach | Difference from Spinal Loop |
+|--------|----------|---------------------------|
+| **OpenRouter** | Routes to cheapest model per request based on benchmarks | No progressive escalation, no post-response quality check |
+| **Martian** | ML-based model selection optimizing cost/quality | No self-evaluation by the model itself |
+| **FrugalGPT** | Cascade through models using external quality scorer | Similar escalation idea, but scorer is external, not agent self-evaluation |
+| **LangChain** | Framework for building agent pipelines | General-purpose — doesn't prescribe routing strategy |
 
-From our 6-turn simulation:
-
-```
-Total API calls: 22
-Models used:     Haiku: 20 (91%)  |  Sonnet: 1 (4.5%)  |  Opus: 1 (4.5%)
-Tokens:          2,300 in / 1,997 out = 4,297 total
-```
-
-91% of calls go to Haiku (the cheapest model). Sonnet and Opus are recruited **once each**, only when necessary. Compared to sending everything to Opus, this represents a **~70% cost reduction** with equivalent or better output quality on complex queries (thanks to the escalation context passing).
+Spinal Loop's specific contributions are the GTO overload monitor (post-response quality gate with automatic decomposition) and the refractory period (mode-switching hysteresis). The biological framing is a design choice, not a performance claim.
 
 ## Project Structure
 
 ```
 spinal_loop/
-├── config.yaml           # All thresholds and parameters
-├── main.py               # CLI entry point (one-shot + interactive)
-├── orchestrator.py        # Main pipeline coordinating all 4 mechanisms
-├── simulate.py            # Full simulation with mock API (no key needed)
+├── config.yaml                # All thresholds and parameters
+├── main.py                    # CLI entry point (one-shot + interactive)
+├── orchestrator.py            # Main pipeline coordinating all 4 mechanisms
+├── simulate.py                # 6-query simulation with mock API
+├── simulate_scenarios.py      # 3 realistic scenarios (dev, public, employee)
 ├── agents/
-│   ├── recruiter.py       # Henneman — ordered recruitment with escalation
-│   ├── monitor.py         # GTO — overload detection and decomposition
-│   ├── mode_switch.py     # Reciprocal inhibition — REFLEX/DELIBERATIVE
-│   └── modulator.py       # Reflex reversal — EXPLORATION/CONSOLIDATION
+│   ├── recruiter.py           # Henneman — ordered recruitment with escalation
+│   ├── monitor.py             # GTO — overload detection and decomposition
+│   ├── mode_switch.py         # Reciprocal inhibition — REFLEX/DELIBERATIVE
+│   └── modulator.py           # Reflex reversal — EXPLORATION/CONSOLIDATION
 └── utils/
-    ├── logger.py          # Biological event logging (colored + file)
-    └── context.py         # Shared session state management
+    ├── logger.py              # Biological event logging (colored + file)
+    └── context.py             # Shared session state management
 ```
 
 ~1,400 lines of Python. No dependencies beyond `anthropic` and `pyyaml`.
@@ -227,16 +230,23 @@ Every decision is logged with its biological event type:
 [REVERSAL]   Phase switch triggered
 ```
 
-## Why Biomimicry?
+## Limitations
 
-This isn't just a metaphor. Neuromuscular systems evolved over millions of years to solve the exact problems multi-agent AI systems face:
+- **Classifier dependency** — the Haiku classifier is a single point of failure. Misclassification sends the query down the wrong path.
+- **Self-evaluation reliability** — agents evaluate their own confidence, which is inherently unreliable. A model that's wrong with high confidence won't trigger escalation.
+- **Mock-only validation** — the simulations use hardcoded mock responses. The system hasn't been stress-tested with real API calls at scale.
+- **Overhead on simple queries** — the DELIBERATIVE pipeline adds multiple API calls (classifier + agent + monitor + modulator). For simple queries correctly classified as REFLEX, this overhead is avoided — but misclassified simple queries pay a high cost.
+
+## Why the Biological Framing?
+
+The neuromuscular analogies aren't just labels. They provide a coherent design vocabulary:
 
 - **Recruit minimum force** → recruit minimum cost (Henneman)
-- **Detect overload before rupture** → detect quality degradation before user sees it (GTO)
+- **Detect overload before rupture** → detect quality degradation before the user sees it (GTO)
 - **Lock action mode to prevent oscillation** → refractory period prevents mode thrashing
 - **Reverse behavior based on phase** → same agent, opposite prompts, context-dependent
 
-The biological framing provides a **coherent design framework** instead of ad-hoc heuristics stacked on top of each other.
+Whether this framing produces better systems than non-biological heuristics is an open question. The value is in the structured thinking it imposes, not in any claim of biological equivalence.
 
 ## Requirements
 
@@ -247,15 +257,15 @@ The biological framing provides a **coherent design framework** instead of ad-ho
 
 ## Related Projects
 
-Spinal Loop is part of a trilogy of multi-agent research projects:
+Spinal Loop is part of a series of multi-agent research explorations:
 
 | Project | What it does |
 |---------|-------------|
 | **[PRISM Framework](https://github.com/contactjccoaching-wq/prism-framework)** | N-parallel sampling + meritocratic synthesis — exploit LLM stochasticity instead of engineering personas |
-| **[DACO](https://github.com/contactjccoaching-wq/daco-framework)** | Single MCP endpoint that routes tool calls to multiple backends — the execution layer for agent orchestration |
-| **Spinal Loop** *(this repo)* | Bio-inspired model routing — 4 neuromuscular mechanisms for cost-efficient multi-agent orchestration |
+| **[DACO](https://github.com/contactjccoaching-wq/daco-framework)** | Single MCP endpoint that routes tool calls to multiple backends |
+| **Spinal Loop** *(this repo)* | Bio-inspired model routing — 4 neuromuscular mechanisms for multi-agent orchestration |
 
-Each solves a different piece of the multi-agent puzzle: PRISM handles *what to ask*, Spinal Loop handles *who to ask*, and DACO handles *what to do with it*.
+Each addresses a different piece of multi-agent systems: PRISM handles *what to ask*, Spinal Loop handles *who to ask*, and DACO handles *what to do with it*.
 
 ## License
 
@@ -263,4 +273,4 @@ MIT — see [LICENSE](LICENSE).
 
 ---
 
-*Built with direct Anthropic API calls. No LangChain. No LangGraph. No abstractions. Just biology and code.*
+*Built with direct Anthropic API calls. No LangChain. No abstractions. Just biology and code.*
