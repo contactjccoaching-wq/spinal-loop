@@ -245,6 +245,18 @@ The biological framing provides a **coherent design framework** instead of ad-ho
 - `pyyaml>=6.0`
 - An Anthropic API key (for real usage; simulation works without one)
 
+## Related Projects
+
+Spinal Loop is part of a trilogy of multi-agent research projects:
+
+| Project | What it does |
+|---------|-------------|
+| **[PRISM Framework](https://github.com/contactjccoaching-wq/prism-framework)** | N-parallel sampling + meritocratic synthesis — exploit LLM stochasticity instead of engineering personas |
+| **[DACO](https://github.com/contactjccoaching-wq/daco-framework)** | Single MCP endpoint that routes tool calls to multiple backends — the execution layer for agent orchestration |
+| **Spinal Loop** *(this repo)* | Bio-inspired model routing — 4 neuromuscular mechanisms for cost-efficient multi-agent orchestration |
+
+Each solves a different piece of the multi-agent puzzle: PRISM handles *what to ask*, Spinal Loop handles *who to ask*, and DACO handles *what to do with it*.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
