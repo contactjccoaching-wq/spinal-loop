@@ -1,5 +1,8 @@
 # Spinal Loop Orchestrator
 
+[![Stars](https://img.shields.io/github/stars/contactjccoaching-wq/spinal-loop?style=social)](https://github.com/contactjccoaching-wq/spinal-loop)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **Bio-inspired multi-agent orchestration for LLMs.**
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
@@ -257,15 +260,11 @@ Whether this framing produces better systems than non-biological heuristics is a
 
 ## Related Projects
 
-Spinal Loop is part of a series of multi-agent research explorations:
-
-| Project | What it does |
-|---------|-------------|
-| **[PRISM Framework](https://github.com/contactjccoaching-wq/prism-framework)** | N-parallel sampling + meritocratic synthesis — exploit LLM stochasticity instead of engineering personas |
-| **[DACO](https://github.com/contactjccoaching-wq/daco-framework)** | Single MCP endpoint that routes tool calls to multiple backends |
-| **Spinal Loop** *(this repo)* | Bio-inspired model routing — 4 neuromuscular mechanisms for multi-agent orchestration |
-
-Each addresses a different piece of multi-agent systems: PRISM handles *what to ask*, Spinal Loop handles *who to ask*, and DACO handles *what to do with it*.
+- [**immune**](https://github.com/contactjccoaching-wq/immune) — Adaptive memory system — learns patterns from every scan (+85% code quality)
+- [**chimera**](https://github.com/contactjccoaching-wq/chimera) — Bio-inspired 3-stage pipeline (Slime Mold → PRISM → Immune)
+- [**prism-framework**](https://github.com/contactjccoaching-wq/prism-framework) — Multi-agent synthesis via native LLM stochasticity
+- [**daco-framework**](https://github.com/contactjccoaching-wq/daco-framework) — Declarative Agent & MCP Orchestration on Cloudflare Workers
+- [**smartrabbit-mcp**](https://github.com/contactjccoaching-wq/smartrabbit-mcp) — AI workout generator MCP server ([smartrabbitfitness.com](https://www.smartrabbitfitness.com))
 
 ## License
 
