@@ -5,6 +5,8 @@
 
 **Bio-inspired multi-agent orchestration for LLMs.**
 
+![Spinal Loop](spinal-loop.png)
+
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Anthropic API](https://img.shields.io/badge/Anthropic-API%20direct-blueviolet.svg)](https://docs.anthropic.com/)
